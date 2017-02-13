@@ -207,6 +207,26 @@ public class ArraysAndLists {
 		}
 		return returnMatrix;
 	}
+	
+	/*
+	 * Assume you have a method isSubstring which checks if one word is a substring of another.
+	 * Given two strings, si and s2, write code to check if s2 is a rotation of si using only
+	 * one call to isSubstring (e.g.,"waterbottle"is a rotation of "erbottlewat").
+	 */
+	private static boolean isRotated(String one, String two){
+
+		for (int i = 0 ; i < one.length() ; i++){
+			String firstPart = one.substring(0, i);
+
+			if (!two.contains(firstPart)){
+				// This is the last contained
+				String secondPart = one.substring(i - 1, one.length() - 1);
+				return two.contains(secondPart) && one.length() == two.length();
+			}
+		}
+
+		return false;
+	}
 
 
 	public static void main(String[] args){
@@ -251,5 +271,7 @@ public class ArraysAndLists {
 			}
 			System.out.println("");
 		}
+		
+		System.out.print(isRotated("waterbottle", "erbottlewat"));
 	}
 }
