@@ -61,7 +61,7 @@ public class SudokuSolver {
 				{_, _, _,  _, _, _,  _, _, _},
 				{_, _, _,  _, _, _,  _, _, _},
 				{_, _, _,  _, _, _,  _, _, _}};*/
-			sudoku = new int[][]{
+			/*sudoku = new int[][]{
 				{3, 7, 4,  2, 5, 8,  9, 6, 1},
 				{6, 2, 8,  1, 7, 9,  4, 3, 5},
 				{1, 5, 9,  4, 3, 6,  8, 2, 7},
@@ -72,23 +72,26 @@ public class SudokuSolver {
 
 				{_, _, _,  _, _, _,  _, _, _},	// {9, 3, 5, 7, 6, 4, 1, 8, 2},
 				{_, _, _,  _, _, _,  _, _, _},	// {7, 6, 2, 9, 8, 1, 5, 4, 3},
-				{_, _, _,  _, _, _,  _, _, _}};	// {4, 8, 1, 3, 2, 5, 7, 9, 6}};
+				{_, _, _,  _, _, _,  _, _, _}};	// {4, 8, 1, 3, 2, 5, 7, 9, 6}};*/
 			
 		boolean[][] mask = createMask(sudoku);
 
-		solve(0, 0, sudoku, mask, false);
+		solve(0, 0, sudoku, mask);
+		
+		System.out.println(isValid(sudoku)); 
+		
 		print(sudoku);
 	}
 	
-	private static void solve(int i, int j, int[][] sudoku, boolean[][] mask, boolean solved){
-		
+	private static void solve(int i, int j, int[][] sudoku, boolean[][] mask){
+
 		if (i > 8 || j > 8){
-			if (isValid(sudoku)){
-				solved = true;
-			}
+			//if (isValid(sudoku)){
+				//continue;
+			//}
 		}
 
-		if (!solved){
+		if (i <= 8 && j <= 8){
 			final boolean isInitialValue = mask[i][j];
 	
 			int nextJ = j + 1;
@@ -103,20 +106,21 @@ public class SudokuSolver {
 			if (!isInitialValue){
 				for (int k = 1 ; k <= 9 ; k++){
 
-					sudoku[i][j] = k;
+					if (!isComplete(sudoku)){
+						sudoku[i][j] = k;
 	
-					if (isValid(sudoku)){
-						solve(nextI, nextJ, sudoku, mask, solved);
-					} else {
-						sudoku[i][j] = _;
+						if (isValid(sudoku)){
+							solve(nextI, nextJ, sudoku, mask);
+						} else {
+							sudoku[i][j] = _;
+						}
 					}
-
 				}
 			}
 	
 			// There is a true value
 			else{
-				solve(nextI, nextJ, sudoku, mask, solved);
+				solve(nextI, nextJ, sudoku, mask);
 			}
 	
 		}
@@ -247,5 +251,16 @@ public class SudokuSolver {
 			}
 		}
 		return mask;
+	}
+
+	private static boolean isComplete(int[][] sudoku){
+		for (int i = 0 ; i < sudoku.length ; i++){
+			for (int j = 0 ; j < sudoku.length ; j++){
+				if (sudoku[i][j] == _){
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 }
