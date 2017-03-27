@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.TreeMap;
 
 
@@ -19,9 +20,7 @@ the hotel reviews.
 
 Input
 The first line contains a space-separated set of words which we want to find mentions in the hotel reviews.
-
 The second line contains one integer M, which is the number of reviews.
-
 This is followed by M+M lines, which alternates an hotel ID and a review belonging to that hotel.
 
 Output
@@ -29,18 +28,18 @@ A list of hotel IDs sorted, in descending order, by how many mentions they have 
 in the input.
 
 Notes
-– The words to be find will always be singe words line ‘breakfast’ or ‘noise’. Never double words like
-‘swimming pool’.
-– Hotel ud is a 4-byte integer.
-– Words match should be case-insensitive.
-– Dots and commas should be ignored.
-– If a word appears in a review twice, it should count twice.
-– If two hotels have the same number of mentions, they should be sorted in the output based on their ID,
+â€“ The words to be find will always be single words line â€˜breakfastâ€™ or â€˜noiseâ€™. Never double words like
+â€˜swimming poolâ€™.
+â€“ Hotel id is a 4-byte integer.
+â€“ Words match should be case-insensitive.
+â€“ Dots and commas should be ignored.
+â€“ If a word appears in a review twice, it should count twice.
+â€“ If two hotels have the same number of mentions, they should be sorted in the output based on their ID,
 smallest ID first.
-– In case one or more test cases time out, consider revisiting the runtime complexity of your algorithms.
+â€“ In case one or more test cases time out, consider revisiting the runtime complexity of your algorithms.
+
 
 Sample input
-
 
 breakfast beach citycenter location metro view staff price
 5
@@ -55,71 +54,106 @@ They said I could't take my dog and there were other guests with dogs! That is n
 2
 Very friendly staff and goof cost-benefit ratio. Its location is a bit far from citycenter.
 
-
 2 1
 
 
 Explanation
 
-Hotel 2 has 7 mentions of the words: ‘location’ and ‘citycenter’ are mentioned twice while ‘breakfast’,
-‘price’ and ‘staff’ are mentioned once. Hotel 1 in the other hand has 6 mentions in total ‘location’
-and ‘citycenter’ also twice and then ‘view’ and ‘metro’ once.
+Hotel 2 has 7 mentions of the words: â€˜locationâ€™ and â€˜citycenterâ€™ are mentioned twice while â€˜breakfastâ€™,
+â€˜priceâ€™ and â€˜staffâ€™ are mentioned once. Hotel 1 in the other hand has 6 mentions in total â€˜locationâ€™
+and â€˜citycenterâ€™ also twice and then â€˜viewâ€™ and â€˜metroâ€™ once.
  */
 
 
 public class Hotel {
 
-	 public static void main(String args[] ) throws Exception {
+	public static void main(String args[]) throws Exception {
+
+		Scanner scanner = new Scanner(System.in);
+
+		// keyWords
+		String readedKeyWords = scanner.nextLine();
+
+		// number of reviews
+		int reviews = scanner.nextInt();
+
+		// map with all the values
+		Map<String, String> keys = new HashMap<String, String>();
+		String[] keyWords = readedKeyWords.split(" ");
 		 
-		 Map<String, String> keys = new HashMap<String, String>();
-		 String[] keyWords = args[0].split(" ");
+		Map<Integer, Integer> reviewHotels = new TreeMap<Integer, Integer>();
 		 
-		 Map<Integer, Integer> reviewHotels = new TreeMap<Integer, Integer>();
+		for (String key : keyWords){
+			keys.put(key.toLowerCase(), key);
+		}
+
+		// read opinions 
+		for (int i = 0 ; i < reviews ; ){
+			if (scanner.hasNextLine()){
+				String read = scanner.nextLine();
+				if (!read.isEmpty()){
+					int idHotel = Integer.valueOf(read);
+					
+					if (scanner.hasNextLine()){
+						read = scanner.nextLine();
+						if (!read.isEmpty()){
+
+							for (String word : read.split(" ")){
+
+								String lookingWord = word.replaceAll("\\.", "").replaceAll(",", "").toLowerCase();
+
+								 if (keys.containsKey(lookingWord)){
+									 Integer score = reviewHotels.get(idHotel);
+									 if (score == null){
+										 score = 0;
+									 }
+									 score ++;
+									 reviewHotels.put(idHotel, score);
+								 }
+
+							 }
+
+							i++;
+						}
+					}
+					
+				}
+			}
+	
+		}
+
+		scanner.close();
 		 
-		 for (String key : keyWords){
-			 keys.put(key, key);
-		 }
-		 
-		 int reviews = Integer.valueOf(args[1]);
-		 int position = 2;
-		 
-		 for (int i = 0 ; i < reviews ; i++){
-			 int idHotel = Integer.valueOf(args[position]);
-			 position++;
-			 String text = args[position];
-			 position++;
-			 
-			 for (String word : text.split(" ")){
-				 if (keys.containsKey(word)){
-					 Integer score = reviewHotels.get(idHotel);
-					 if (score == null){
-						 score = 0;
-					 }
-					 score ++;
-					 reviewHotels.put(idHotel, score);
-				 }
-			 }
-		 }
-		 
-		 Map<Integer, Integer> sortedIds = sortByValue(reviewHotels);
+		Map<Integer, Integer> sortedMap = sortByValue(reviewHotels);
+		
+		StringBuilder sb = new StringBuilder();
+		for (Map.Entry<Integer, Integer> entry : sortedMap.entrySet()) {
+			sb.append(entry.getKey()).append(" ");
+        }
+		
+		System.out.println(sb.toString().substring(0, sb.toString().length() - 1));
 	}
 	 
-	 public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue( Map<K, V> map ) {
-	    List<Map.Entry<K, V>> list = new LinkedList<>( map.entrySet() );
-	    Collections.sort( list, new Comparator<Map.Entry<K, V>>()
-	    {
-	        @Override
-	        public int compare( Map.Entry<K, V> o1, Map.Entry<K, V> o2 )
-	        {
-	            return ( o1.getValue() ).compareTo( o2.getValue() );
-	        }
-	    } );
+	 public static Map<Integer, Integer> sortByValue(Map<Integer, Integer> map) {
+		// 1. Convert Map to List of Map
+		List<Map.Entry<Integer, Integer>> list = new LinkedList<Map.Entry<Integer, Integer>>(map.entrySet());
 
-	    Map<K, V> result = new LinkedHashMap<>();
-	    for (Map.Entry<K, V> entry : list) {
-	        result.put( entry.getKey(), entry.getValue() );
-	    }
-	    return result;
+		// 2. Sort list with Collections.sort(), provide a custom Comparator
+		// Try switch the o1 o2 position for a different order
+		Collections.sort(list, new Comparator<Map.Entry<Integer, Integer>>() {
+		    public int compare(Map.Entry<Integer, Integer> o1,
+		                       Map.Entry<Integer, Integer> o2) {
+		        return (o2.getValue()).compareTo(o1.getValue());
+		    }
+		});
+
+		// 3. Loop the sorted list and put it into a new insertion order Map LinkedHashMap
+        Map<Integer, Integer> sortedMap = new LinkedHashMap<Integer, Integer>();
+        for (Map.Entry<Integer, Integer> entry : list) {
+            sortedMap.put(entry.getKey(), entry.getValue());
+        }
+
+        return sortedMap;
 	}
 	 
 }
